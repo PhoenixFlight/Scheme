@@ -9,27 +9,14 @@
     (set! heap (list->vector (append (vector->list heap) (list val))))
     (upheap (- (vector-length heap) 1))))
 
-(define startItUp
-  (lambda ()
-    (insert '((2 2) 1))
-    (insert '((3 2) 1))
-    (insert '((4 2) 1))
-    (insert '((7 2) 1))
-    (insert '((6 2) 1))
-    (insert '((10 2) 1))
-    (insert '((9 2) 1))
-    (insert '((5 2) 1))
-    (insert '((8 2) 1))
-    (insert '((1 2) 1))))
-
 (define front
   (lambda ()
     (vector-ref heap 0)))
 
 (define taxidist
   (lambda (pt1)
-    (+ (floor (abs (- (car goal) (car pt1)))) 
-       (floor (abs (- (cadr goal) (cadr pt1)))))))
+    (+ (floor (abs (- (car target) (car pt1)))) 
+       (floor (abs (- (cadr target) (cadr pt1)))))))
 
 (define heap-empty?
   (lambda ()
@@ -37,7 +24,7 @@
 
 (define priority
   (lambda (val)
-    (if (equal? (car val) goal)
+    (if (equal? (car val) target)
         -1
         (+ (cadr val) (taxidist (car val))))))
 
