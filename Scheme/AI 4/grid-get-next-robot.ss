@@ -1,12 +1,50 @@
 (define get-next-robot 
   (lambda (point)
-    (r-minimax 4)))
+    (let ((val (r-minimax 3 #t point goal)))
+      (set! robot point)
+      val)))
+
+(define r-get-frontiers
+  (lambda (x y)
+    (let ((frontiers '()))
+      (filter
+       (lambda (n)
+         (not (= (length n) 0)))
+       (append
+        (list
+         (if (and (> x 0) (not (= (get-node grid (- x 1) y) obstacle)))
+             (list (- x 1) y)
+             '())
+         (if (and (< x (- num-col-row 1)) (not (= (get-node grid (+ x 1) y) obstacle)))
+             (list (+ x 1) y)
+             '()))
+        (list
+         (if (and (> y 0) (not (= (get-node grid x (- y 1)) obstacle)))
+             (list x (- y 1))
+             '())
+         (if (and (< y (- num-col-row 1)) (not (= (get-node grid x (+ y 1)) obstacle)))
+             (list x (+ y 1))
+             '())))))))
+
+(define expand
+  (lambda (plyes max pos targ frontiers)
+    (let ((newPos
+           (if max
+               (append (list
 
 (define r-minimax
-  (lambda (plyes)
-    ))
+  (lambda (plyes max pos targ)
+    (if (= plyes 0)
+        (begin
+          (set! robot pos)
+          (set! target targ)
+          (set! r-visited '())
+          (set! r-heap (make-vector 0))
+          (length (r-searchbb 20000)))
+        (let ((children (expand plyes max pos targ (r-get-frontiers (car pos) (cadr pos)))))
 
 (define r-visited '())
+(define r-target goal)
 
 (define r-searchbb
   (lambda (stop-count)
@@ -20,17 +58,17 @@
          (not (= (length n) 0)))
        (append
         (list
-         (if (and (> x 0) (not (r-contains (list (- x 1) y))))
+         (if (and (> x 0) (not (= (get-node grid (- x 1) y) obstacle)) (not (r-contains (list (- x 1) y))))
              (list (- x 1) y)
              '())
-         (if (and (< x (- num-col-row 1)) (not (r-contains (list (+ x 1) y))))
+         (if (and (< x (- num-col-row 1)) (not (= (get-node grid (+ x 1) y) obstacle)) (not (r-contains (list (+ x 1) y))))
              (list (+ x 1) y)
              '()))
         (list
-         (if (and (> y 0) (not (r-contains (list x (- y 1)))))
+         (if (and (> y 0) (not (= (get-node grid x (- y 1)) obstacle)) (not (r-contains (list x (- y 1)))))
              (list x (- y 1))
              '())
-         (if (and (< y (- num-col-row 1)) (not (r-contains (list x (+ y 1)))))
+         (if (and (< y (- num-col-row 1)) (not (= (get-node grid x (+ y 1)) obstacle)) (not (r-contains (list x (+ y 1)))))
              (list x (+ y 1))
              '())))))))
 
@@ -92,8 +130,8 @@
 
 (define r-taxidist
   (lambda (pt1)
-    (+ (floor (abs (- (car target) (car pt1)))) 
-       (floor (abs (- (cadr target) (cadr pt1)))))))
+    (+ (floor (abs (- (car r-target) (car pt1)))) 
+       (floor (abs (- (cadr r-target) (cadr pt1)))))))
 
 (define r-heap-empty?
   (lambda ()
@@ -101,7 +139,7 @@
 
 (define r-priority
   (lambda (val)
-    (if (equal? (car val) target)
+    (if (equal? (car val) r-target)
         -1
         (+ (cadr val) (r-taxidist (car val))))))
 
