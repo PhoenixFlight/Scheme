@@ -6,14 +6,14 @@
         (else
           (let ((node-num (random size)))
             (cons (list-ref lst node-num) 
-                  (randomize (remove node-num lst)))))))))
+                  (randomize (removex node-num lst)))))))))
 
-(define remove
+(define removex
   (lambda (num lst)
     (if (= num 0)
       (cdr lst)
     ;else
-      (cons (car lst) (remove (- num 1) (cdr lst)))))) 
+      (cons (car lst) (removex (- num 1) (cdr lst)))))) 
 
 (define get-next-goal0 
   (lambda (point)
